@@ -150,7 +150,7 @@ var deleteTask = function (taskId) {
     }
     // reassign tasks array to be the same as updatedTaskArr
     tasks = updatedTaskArr;
-    
+
     saveTasks(); //call fucntion to save tasks to local storage
 };
 
@@ -292,10 +292,28 @@ var dragLeaveHandler = function (event) {
 }
 
 //SAVE TASK TO LOCAL STORAGE
-var saveTasks = function() {
+var saveTasks = function () {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 
 }
+
+//LOAD TASK FROM LOCAL STORAGE
+var loadTasks = function () {
+    //Gets task items from localStorage
+    savedTasks = localStorage.getItem("tasks");
+    if (!savedTasks) { //check values return from local storage, dont run if no values
+        return false;
+    }
+    //Convert tasks from the string format back into an array of objects
+    savedTasks = JSON.parse(savedTasks)
+
+    // loop through savedTasks array
+    for (var i = 0; i < savedTasks.length; i++) {
+        // pass each task object into the `createTaskEl()` function
+        createTaskEl(savedTasks[i]);
+    }
+
+};
 
 //EVENT LISTENER for LEAVING DRAG EVENT
 pageContentEl.addEventListener("dragleave", dragLeaveHandler);
