@@ -38,7 +38,6 @@ var taskFormHandler = function (event) { //pass event so that page doesn't refre
     }
 };
 
-
 //CREATE TASK FUNCTION 
 var createTaskEl = function (taskDataObj) { //holds code that creates a new task HTML element, with both task title and type
     //create list item
@@ -209,7 +208,8 @@ var dropZoneDragHandler = function (event) {
     var taskListEl = event.target.closest(".task-list");
     if (taskListEl) {
         event.preventDefault();
-
+        //styling attribute to highlight drop zone when list item is dragged over
+        taskListEl.setAttribute("style", "background: rgba(68, 233, 255, 0.7); border-style: dashed;");
     }
 };
 //TASK DROP HANDLER
@@ -234,8 +234,20 @@ var dropTaskHandler = function (event) {
     else if (statusType === "tasks-completed") {
         statusSelectEl.selectedIndex = 2;
     }
+    dropZoneEl.removeAttribute("style");//removes attribute styling of drop zone when list item is dropped
     dropZoneEl.appendChild(draggableElement);//apend draggableElement to new parent dropZoneEl
 };
+
+//EVENT HANDLER FOR LEAVING DRAG EVENT (DRAG OVER STATE)
+var dragLeaveHandler = function (event) {
+    var taskListEl = event.target.closest(".task-list");//if closest() returns null, the selector was not found in the target element or ancestor, and style attribute will not be removed
+    if (taskListEl) {
+        taskListEl.removeAttribute("style");
+    }
+}
+
+//EVENT LISTENER for LEAVING DRAG EVENT
+pageContentEl.addEventListener("dragleave", dragLeaveHandler);
 
 //EVENT LISTENER for SUBMIT TASK BTN
 formEl.addEventListener("submit", taskFormHandler);
@@ -246,9 +258,7 @@ pageContentEl.addEventListener("click", taskButtonHandler);
 //EVENT LISTENER for CHANGE STATUS
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
 
-//EVENT LISTENER for TAKS DRAG START
+//EVENT LISTENERS for TAKS DRAG START, DRAG OVER, DROP
 pageContentEl.addEventListener("dragstart", dragTaskHandler);
-//EVENT LISTENER for TASK DRAG OVER
-pageContentEl.addEventListener("dragover", dropZoneDragHandler);//no parantheses so it's not called immediately. 
-//EVENT LISTENER for TASK DROP
+pageContentEl.addEventListener("dragover", dropZoneDragHandler);//no parantheses so it's not called immediately,ONLY when listening event occurs
 pageContentEl.addEventListener("drop", dropTaskHandler);
