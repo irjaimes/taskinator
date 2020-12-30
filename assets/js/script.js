@@ -6,7 +6,7 @@ var pageContentEl = document.querySelector("#page-content")
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
 
-//TASK HANDLER FUNCTION
+//TASK FORM HANDLER 
 var taskFormHandler = function (event) { //pass event so that page doesn't refresh
     event.preventDefault(); //stops page from refreshing on submit
     var taskNameInput = document.querySelector("input[name='task-name']").value;
@@ -38,6 +38,7 @@ var taskFormHandler = function (event) { //pass event so that page doesn't refre
     }
 };
 
+
 //CREATE TASK FUNCTION 
 var createTaskEl = function (taskDataObj) { //holds code that creates a new task HTML element, with both task title and type
     //create list item
@@ -46,6 +47,7 @@ var createTaskEl = function (taskDataObj) { //holds code that creates a new task
 
     // create and set id as a custom attribute for each new list item created with the value derived from taskIDCounter
     listItemEl.setAttribute("data-task-id", taskIdCounter);
+    listItemEl.setAttribute("draggable", "true"); //adds dragable attribute to task
 
     //create div to hold task info and add to list item
     var taskInfoEl = document.createElement("div");
@@ -106,7 +108,7 @@ var createTaskActions = function (taskId) {
     return actionContainerEl;
 };
 
-//EVENT HANDLER FUNCTION FOR TASK BUTTON
+//TASK DELETE/EDIT BUTTON HANDLER 
 var taskButtonHandler = function (event) {//passing the event object
     //get target element from event
     var targetEl = event.target;
@@ -122,6 +124,7 @@ var taskButtonHandler = function (event) {//passing the event object
         deleteTask(taskId);
     }
 };
+
 
 //DELETE TASK FUNCTION
 var deleteTask = function (taskId) {
@@ -151,7 +154,6 @@ var editTask = function (taskId) {
     formEl.setAttribute("data-task-id", taskId);//set attribute so we can reference to save correct task
 };
 
-
 //COMPLETE TASK FUNCTION
 var completeEditTask = function (taskName, taskType, taskId) {
     //console.log(taskName, taskType, taskId);
@@ -168,7 +170,7 @@ var completeEditTask = function (taskName, taskType, taskId) {
     document.querySelector("#save-task").textContent = "Add Task";
 };
 
-
+//TASK STATUS CHANGE HANDLER
 var taskStatusChangeHandler = function (event) {
     //console.log(event.target);
     //console.log(event.target.getAttribute("data-task-id"));
@@ -193,8 +195,49 @@ var taskStatusChangeHandler = function (event) {
     }
 };
 
+//TASK DRAG START HANDLER
+var dragTaskHandler = function (event) {
+    var taskId = event.target.getAttribute("data-task-id");
+    //console.log("Task ID:", taskId);
+    event.dataTransfer.setData("text/plain", taskId);//this will store the taskID in the dataTransfer property
+    var getId = event.dataTransfer.getData("text/plain");
+    console.log("getId:", getId, typeof getId);
+}
 
-//EVENT LISTENER for ADD TASK BTN
+//TASK DROP ZONE HANDLER
+var dropZoneDragHandler = function (event) {
+    var taskListEl = event.target.closest(".task-list");
+    if (taskListEl) {
+        event.preventDefault();
+
+    }
+};
+//TASK DROP HANDLER
+var dropTaskHandler = function (event) {
+    var id = event.dataTransfer.getData("text/plain");
+    var draggableElement = document.querySelector("[data-task-id='" + id + "']");
+    //console.log(draggableElement);
+    //console.dir(draggableElement);
+    var dropZoneEl = event.target.closest(".task-list");
+    var statusType = dropZoneEl.id;
+    var dropZoneEl = event.target.closest(".task-list");
+    var statusType = dropZoneEl.id;
+
+    // set status of task based on dropZone id
+    var statusSelectEl = draggableElement.querySelector("select[name='status-change']");
+    if (statusType === "tasks-to-do") {
+        statusSelectEl.selectedIndex = 0;
+    }
+    else if (statusType === "tasks-in-progress") {
+        statusSelectEl.selectedIndex = 1;
+    }
+    else if (statusType === "tasks-completed") {
+        statusSelectEl.selectedIndex = 2;
+    }
+    dropZoneEl.appendChild(draggableElement);//apend draggableElement to new parent dropZoneEl
+};
+
+//EVENT LISTENER for SUBMIT TASK BTN
 formEl.addEventListener("submit", taskFormHandler);
 
 //EVENT LISTENER for DELETE BTN
@@ -203,3 +246,9 @@ pageContentEl.addEventListener("click", taskButtonHandler);
 //EVENT LISTENER for CHANGE STATUS
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
 
+//EVENT LISTENER for TAKS DRAG START
+pageContentEl.addEventListener("dragstart", dragTaskHandler);
+//EVENT LISTENER for TASK DRAG OVER
+pageContentEl.addEventListener("dragover", dropZoneDragHandler);//no parantheses so it's not called immediately. 
+//EVENT LISTENER for TASK DROP
+pageContentEl.addEventListener("drop", dropTaskHandler);
