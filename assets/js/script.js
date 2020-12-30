@@ -67,6 +67,8 @@ var createTaskEl = function (taskDataObj) { //holds code that creates a new task
 
     tasks.push(taskDataObj);//add taskDaraObj to end of task array as means to store
 
+    saveTasks(); //call fucntion to save tasks to local storage
+
     // add entire list item to list
     tasksToDoEl.appendChild(listItemEl);
 
@@ -146,9 +148,10 @@ var deleteTask = function (taskId) {
             updatedTaskArr.push(tasks[i]);
         }
     }
-
     // reassign tasks array to be the same as updatedTaskArr
     tasks = updatedTaskArr;
+    
+    saveTasks(); //call fucntion to save tasks to local storage
 };
 
 //EDIT TASK FUNCTION
@@ -192,6 +195,8 @@ var completeEditTask = function (taskName, taskType, taskId) {
 
     alert("Task Updated!");
 
+    saveTasks(); //call fucntion to save tasks to local storage
+
     formEl.removeAttribute("data-task-id");//remove the attribute to allow user to create new tasks and edit tasks
     document.querySelector("#save-task").textContent = "Add Task";
 };
@@ -223,6 +228,7 @@ var taskStatusChangeHandler = function (event) {
             tasks[i].status = statusValue;
         }
     }
+    saveTasks(); //call fucntion to save tasks to local storage
 };
 
 //TASK DRAG START HANDLER
@@ -231,7 +237,7 @@ var dragTaskHandler = function (event) {
     //console.log("Task ID:", taskId);
     event.dataTransfer.setData("text/plain", taskId);//this will store the taskID in the dataTransfer property
     var getId = event.dataTransfer.getData("text/plain");
-    console.log("getId:", getId, typeof getId);
+    //console.log("getId:", getId, typeof getId);
 }
 
 //TASK DROP ZONE HANDLER
@@ -274,6 +280,7 @@ var dropTaskHandler = function (event) {
             tasks[i].status = statusSelectEl.value.toLowerCase();
         }
     }
+    saveTasks(); //call fucntion to save tasks to local storage
 };
 
 //EVENT HANDLER FOR LEAVING DRAG EVENT (DRAG OVER STATE)
@@ -282,6 +289,12 @@ var dragLeaveHandler = function (event) {
     if (taskListEl) {
         taskListEl.removeAttribute("style");
     }
+}
+
+//SAVE TASK TO LOCAL STORAGE
+var saveTasks = function() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
 }
 
 //EVENT LISTENER for LEAVING DRAG EVENT
